@@ -8,28 +8,22 @@ training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
 # Создание НС
 import network
 net = network.Network([784, 30, 10])
-net.SGD(training_data, 4, 10, 3.0, test_data=test_data)
+net.SGD(training_data, 10, 10, 2.0, test_data=test_data)
 
 # Предобработка тестовых данных
 digits_test = {0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: []}
 for x, y in test_data:
   digits_test[y].append(x.reshape(28, 28))
 
-def combine_digits(digits):
+def combine_digits(number):
     images = []
 
-    for i, digit in enumerate(digits):
+    for digit in [int(ch) for ch in str(number)]:
         index = np.random.randint(0, len(digits_test[digit]))
         pil_image = digits_test[digit][index]
         images.append(pil_image)
 
     final_image = np.hstack(images)
-
-    position = 1
-    number = 0
-    for i in range(len(digits) - 1, -1, -1):
-        number += digits[i] * position
-        position *= 10
 
     return final_image, number
 
@@ -52,7 +46,7 @@ from sklearn.cluster import DBSCAN
 import cv2
 
 index = np.random.randint(0, len(test_x))
-img = test_x[index]
+img = test_x[index].T
 
 height, width = img.shape
 
@@ -76,7 +70,7 @@ for label in set(labels):
     digit = img[x_min:x_max, y_min:y_max]
 
     digit = cv2.resize(digit, dsize=(28, 28), interpolation=cv2.INTER_CUBIC)
-    digits.append(digit)
+    digits.append(digit.T)
 
 predicted_digits = []
 for i in range(len(digits)):
